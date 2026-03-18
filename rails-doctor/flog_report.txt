@@ -1,0 +1,80 @@
+﻿  4942.4: flog total
+    11.9: flog/method average
+
+  1030.6: main#none
+   157.8: Order#none
+   118.4: action_item#view                 app/admin/subscription.rb:29-31
+   100.3: Mutations::UpdateClient#resolve  app/graphql/mutations/update_client.rb:61-174
+    99.3: panel#Clients                    app/admin/users.rb:37-44
+    85.7: panel()#                         app/admin/client.rb:71-277
+    55.0: Mutations::UpdateClient#none
+    53.4: AccessToken#none
+    52.3: panel()::tab#Catalogue           app/admin/client.rb:215-240
+    51.7: Types::ClientType#none
+    48.8: Mutations::Order#resolve         app/graphql/mutations/order.rb:21-47
+    47.6: collection_action#new_invoices   app/admin/order.rb:31-52
+    47.4: Client#none
+    41.6: csv#humanize_name                app/admin/mapotempo.rb:51-76
+    40.4: panel#Produits                   app/admin/order.rb:204-212
+    30.3: panel()::tab(Acc├¿s)::panel()::attributes_table#title app/admin/client.rb:132-137
+    28.5: panel()::tab(Commandes)::panel()# app/admin/client.rb:142-157
+    28.4: Import#execute_now               app/models/import.rb:31-54
+    28.4: collection_action#create_invoices app/admin/order.rb:54-63
+    28.3: main#create                      app/admin/order.rb:238-242
+    27.2: panel()::tab(Ouverture)::panel()# app/admin/client.rb:178-198
+    26.3: ExpoPushNotificationService#send_push_notification app/services/expo_push_notification_service.rb:17-28
+    26.2: DailySubscription#generate_order! app/models/daily_subscription.rb:44-69
+    24.0: show(title)::tab(Commandes)::panel()# app/admin/invoice.rb:85-95
+    23.8: panel#Commandes par famille      app/admin/production_order.rb:82-96
+    23.7: panel#Commandes par tourn├®e      app/admin/production_order.rb:63-80
+    23.2: DailySubscription#none
+    23.1: InvoiceGroup#submit!             app/models/invoice_group.rb:20-33
+    23.0: show(title)::tab(Contenu)::panel()# app/admin/invoice.rb:99-110
+    22.6: Invoice#none
+    22.4: CatalogProduct#max_quantity_adjusted app/models/catalog_product.rb:29-35
+    22.4: CatalogProduct#min_quantity_adjusted app/models/catalog_product.rb:21-27
+    22.1: show#title                       app/admin/invoice.rb:69-113
+    21.8: PjrRailsSchema#none
+    21.8: scope#tomorrow                   app/admin/production_order.rb:13-19
+    21.3: InvoiceImport#import_line        app/models/invoice_import.rb:2-12
+    21.3: panel()::tab(Infos)::panel()#    app/admin/client.rb:161-174
+    21.2: batch_action#destroy             app/admin/invoice.rb:42-53
+    21.1: Invoice#populate_items           app/models/invoice.rb:56-68
+    20.8: DailyCreateOrdersJob#perform     app/jobs/daily_create_orders_job.rb:2-13
+    20.7: content(title)::panel#Semaine en cours app/admin/dashboard.rb:6-15
+    20.2: ErrorRescuer#invalid_record      app/controllers/concerns/error_rescuer.rb:27-34
+    20.0: InvoiceItem#none
+    19.7: panel#                           app/admin/order.rb:214-226
+    19.7: panel#Commandes par produit      app/admin/production_order.rb:44-61
+    19.2: ExpoPushNotificationService#verify_deliveries app/services/expo_push_notification_service.rb:30-36
+    19.2: GraphqlController#execute        app/controllers/graphql_controller.rb:6-19
+    18.8: Types::QueryType#basket          app/graphql/types/query_type.rb:91-112
+    18.0: User#none
+    17.6: Order#method_missing             app/models/order.rb:106-121
+    17.5: Order#set_quantity               app/models/order.rb:123-138
+    17.5: panel#Changements                app/admin/catalog.rb:53-60
+    17.0: column#products                  app/admin/order.rb:139-139
+    16.5: Order#too_late_to_change?        app/models/order.rb:150-154
+    15.9: Notification#none
+    15.6: Mutations::Order#none
+    15.5: DeliveryRound#none
+    14.8: InvoiceItem#total_price_ttc      app/models/invoice_item.rb:27-29
+    14.6: Cancelable#none
+    14.5: main#<=>                         app/admin/recapitulatif.rb:6-8
+    14.5: main#merge                       app/admin/recapitulatif.rb:10-15
+    14.4: column#groups                    app/admin/client.rb:40-42
+    14.4: column#subscriptions             app/admin/client.rb:48-52
+    14.3: ErrorRescuer#unmatched_error     app/controllers/concerns/error_rescuer.rb:20-25
+    14.3: Invoice#validate_orders_same_client app/models/invoice.rb:49-54
+    14.1: ExpoPushNotificationService#expo_notification app/services/expo_push_notification_service.rb:40-50
+    14.1: collection_action#generate_orders app/admin/subscription.rb:21-27
+    13.9: ProductionOrder#orders           app/models/production_order.rb:11-17
+    13.9: Product#none
+    13.4: ErrorRescuer#none
+    13.4: Invoice#client_id                app/models/invoice.rb:26-33
+    13.4: CatalogProduct#none
+    13.3: panel()::tab(Abonnements)::panel()# app/admin/client.rb:202-212
+    13.2: Notification::order_client_validation app/models/notification.rb:75-91
+    13.0: action_item#next_month           app/admin/recapitulatif.rb:28-31
+    13.0: action_item#previous_month       app/admin/recapitulatif.rb:23-26
+    13.0: panel(Commandes par tourn├®e)::column#Famille app/admin/production_order.rb:65-67

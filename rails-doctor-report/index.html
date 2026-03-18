@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rails Doctor — Audit de Santé pjr-rails</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #0c1222;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-orange: #f59e0b;
+      --accent-yellow: #eab308;
+      --accent-blue: #3b82f6;
+      --border: #334155;
+      --sidebar-width: 260px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      font-size: 1.5rem;
+    }
+
+    .logo-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 0.25rem;
+    }
+
+    .nav {
+      padding: 1rem 0;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 0.6rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .nav-item.active {
+      color: var(--accent-green);
+      border-left-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .nav-icon {
+      display: inline-block;
+      width: 1.25em;
+      text-align: center;
+      margin-right: 0.35rem;
+      opacity: 0.9;
+    }
+
+    /* Main content */
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .main {
+      width: 100%;
+      max-width: 1080px;
+      padding: 6rem 2.5rem 4rem;
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--accent-green);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .meta {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .section-score-bar {
+      height: 4px;
+      background: var(--bg-card);
+      border-radius: 2px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .section-score-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s ease-out;
+    }
+
+    /* Score gauge */
+    .score-gauge {
+      width: 180px;
+      height: 180px;
+      margin: 2rem auto;
+      position: relative;
+      filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.25));
+    }
+
+    .score-gauge svg {
+      transform: rotate(-90deg);
+    }
+
+    .score-gauge .bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 12;
+    }
+
+    .score-gauge .fill {
+      fill: none;
+      stroke: var(--accent-green);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .score-gauge .fill.low { stroke: var(--accent-red); }
+    .score-gauge .fill.medium { stroke: var(--accent-orange); }
+
+    .score-gauge-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .score-gauge-label {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: -1rem;
+    }
+
+    /* Progress bars */
+    .progress-item {
+      margin-bottom: 1rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-card);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 4px;
+      transition: width 1s ease-out;
+    }
+
+    .progress-fill.security { background: var(--accent-red); }
+    .progress-fill.quality { background: var(--accent-orange); }
+    .progress-fill.performance { background: var(--accent-yellow); }
+    .progress-fill.architecture { background: var(--accent-blue); }
+    .progress-fill.deps { background: var(--accent-red); }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .risk-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.25rem 1.25rem 2.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--accent-red);
+      position: relative;
+    }
+
+    .risk-card::before {
+      content: attr(data-num);
+      position: absolute;
+      left: 0.75rem;
+      top: 1.25rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--accent-red);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1.5rem;
+      text-align: center;
+    }
+
+    .risk-card strong {
+      display: block;
+      padding-left: 0.25rem;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+    .badge-major { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+    .badge-minor { background: rgba(234, 179, 8, 0.2); color: #fde047; }
+    .badge-cosmetic { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+
+    /* Finding cards (accordion) */
+    .finding {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      border-left: 4px solid var(--border);
+    }
+
+    .finding.severity-critical { border-left-color: var(--accent-red); }
+    .finding.severity-major { border-left-color: var(--accent-orange); }
+    .finding.severity-minor { border-left-color: var(--accent-yellow); }
+
+    .finding-header {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: background 0.2s;
+    }
+
+    .finding-header:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .finding-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .finding-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .finding-content-inner {
+      padding: 0 1.25rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .finding-content-inner p,
+    .finding-content-inner ul {
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .finding-content-inner ul {
+      padding-left: 1.25rem;
+    }
+
+    .finding-content-inner strong {
+      color: var(--text-primary);
+    }
+
+    .finding-toggle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      transition: transform 0.3s;
+    }
+
+    .finding.open .finding-toggle {
+      transform: rotate(180deg);
+    }
+
+    .finding:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:nth-child(even) {
+      background: rgba(30, 41, 59, 0.5);
+    }
+
+    tr:hover {
+      background: rgba(30, 41, 59, 0.8);
+    }
+
+    th {
+      color: var(--text-secondary);
+      font-weight: 500;
+      background: var(--bg-card);
+    }
+
+    /* CTA */
+    .cta-block {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .cta-block p {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Budget table */
+    .budget-table {
+      background: var(--bg-card);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .budget-table td:last-child {
+      font-weight: 600;
+      color: var(--accent-green);
+    }
+
+    /* Timeline */
+    .timeline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .timeline-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .timeline-arrow {
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+    }
+
+    /* Lot blocks */
+    .lot-block {
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+    }
+
+    .lot-1 { background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3); }
+    .lot-2 { background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.3); }
+    .lot-3 { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); }
+
+    .lot-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .lot-meta {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .checklist .checked { color: var(--accent-green); }
+    .checklist .unchecked { color: var(--text-secondary); opacity: 0.7; }
+
+    .quick-wins-list,
+    .chantiers-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .quick-wins-list li {
+      padding: 0.4rem 0 0.4rem 1.5rem;
+      position: relative;
+      color: var(--text-secondary);
+    }
+
+    .quick-wins-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent-green);
+      font-weight: 700;
+    }
+
+    .chantiers-list li {
+      padding: 0.4rem 0 0.4rem 1.5rem;
+      position: relative;
+      color: var(--text-secondary);
+    }
+
+    .chantiers-list li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent-orange);
+      font-weight: 600;
+    }
+
+    /* Mobile menu */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 101;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 1.25rem;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .sidebar-overlay.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+      }
+
+      .main-wrapper {
+        margin-left: 0;
+      }
+
+      .main {
+        padding: 3rem 1.5rem 4rem;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .footer-brand {
+      font-weight: 600;
+      color: var(--accent-green);
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-meta {
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    .stars {
+      color: var(--accent-yellow);
+    }
+  </style>
+</head>
+<body>
+  <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">🩺</span>
+        Rails Doctor
+      </div>
+      <div class="logo-subtitle">Audit de Santé Applicatif</div>
+    </div>
+    <nav class="nav">
+      <a href="#summary" class="nav-item active"><span class="nav-icon">📊</span> Résumé</a>
+      <a href="#profile" class="nav-item"><span class="nav-icon">📁</span> Profil Projet</a>
+      <a href="#security" class="nav-item"><span class="nav-icon">🔒</span> Sécurité</a>
+      <a href="#quality" class="nav-item"><span class="nav-icon">🧹</span> Qualité</a>
+      <a href="#performance" class="nav-item"><span class="nav-icon">⚡</span> Performance</a>
+      <a href="#architecture" class="nav-item"><span class="nav-icon">🏗️</span> Architecture</a>
+      <a href="#action-plan" class="nav-item"><span class="nav-icon">📋</span> Plan d'Action</a>
+    </nav>
+  </aside>
+
+  <div class="main-wrapper">
+  <main class="main">
+    <!-- Section 1: Executive Summary -->
+    <section id="summary" class="section active">
+      <h1>Audit de Santé — pjr-rails</h1>
+      <p class="meta">Date : 18 mars 2025 — Réalisé par Rails Doctor</p>
+
+      <div class="score-gauge" data-score="42" data-max="100">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle class="bg" cx="90" cy="90" r="45"/>
+          <circle class="fill medium" cx="90" cy="90" r="45" data-fill/>
+        </svg>
+        <span class="score-gauge-value">42</span>
+        <div class="score-gauge-label">/ 100</div>
+      </div>
+
+      <h2>Ce que ça veut dire</h2>
+      <p>Votre application fonctionne, mais elle accumule des risques de sécurité et des freins techniques qui coûteront plus cher à corriger demain. Sans intervention, les coûts de maintenance et le risque d'incidents augmenteront sensiblement. Une action rapide sur les points critiques est recommandée.</p>
+
+      <h2>Scores par domaine</h2>
+      <div class="progress-item">
+        <div class="progress-header"><span>🔒 Sécurité</span><span>8/30</span></div>
+        <div class="progress-bar"><div class="progress-fill security" data-width="26.7"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-header"><span>🧹 Qualité</span><span>12/20</span></div>
+        <div class="progress-bar"><div class="progress-fill quality" data-width="60"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-header"><span>⚡ Performance</span><span>10/20</span></div>
+        <div class="progress-bar"><div class="progress-fill performance" data-width="50"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-header"><span>🏗️ Architecture</span><span>9/20</span></div>
+        <div class="progress-bar"><div class="progress-fill architecture" data-width="45"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-header"><span>📦 Dépendances</span><span>3/10</span></div>
+        <div class="progress-bar"><div class="progress-fill deps" data-width="30"></div></div>
+      </div>
+
+      <h2>Les 5 risques principaux</h2>
+      <div class="risk-card" data-num="1">
+        <strong>Vulnérabilité critique dans GraphQL (exécution de code à distance)</strong>
+        <p>Une faille de sécurité connue dans la bibliothèque GraphQL permet à un attaquant de prendre le contrôle du serveur. La correction est simple (mise à jour) et urgente.</p>
+      </div>
+      <div class="risk-card" data-num="2">
+        <strong>Données non chiffrées en production</strong>
+        <p>Le chiffrement SSL (HTTPS) est désactivé. Les mots de passe, tokens et données sensibles peuvent être interceptés lors de leur transmission.</p>
+      </div>
+      <div class="risk-card" data-num="3">
+        <strong>Plus de 40 vulnérabilités dans les bibliothèques</strong>
+        <p>Les composants logiciels (Rails, ActiveAdmin, Puma, etc.) contiennent des failles de sécurité connues. Votre application n'est plus couverte par les mises à jour de sécurité depuis 2023.</p>
+      </div>
+      <div class="risk-card" data-num="4">
+        <strong>Absence de tests sur les fonctionnalités critiques</strong>
+        <p>Moins de 10 % du code est couvert par des tests. Chaque mise en production comporte un risque de régression non détectée.</p>
+      </div>
+      <div class="risk-card" data-num="5">
+        <strong>Performance dégradée sous charge</strong>
+        <p>L'application n'est pas équipée pour détecter les requêtes inefficaces (N+1). Le cache n'est pas configuré en production. Les listes de commandes et clients peuvent devenir lentes avec la croissance des données.</p>
+      </div>
+
+      <h2>Notre recommandation</h2>
+      <p>Nous recommandons de commencer par le <strong>Lot 1 — Quick Wins</strong> (5 jours) pour un investissement de 2 500€ à 5 000€. Cette première phase corrige les risques les plus critiques : activation du SSL, mise à jour de GraphQL, configuration du cache, détection des problèmes de performance. Elle pose les bases pour les chantiers suivants.</p>
+      <p>Le <strong>Lot 2 — Chantiers Structurants</strong> (18 jours) sécurise l'application à moyen terme : mise à jour de Rails et des bibliothèques, refonte des parties les plus fragiles, augmentation des tests. L'investissement total recommandé est de 23 jours sur 2 à 3 mois.</p>
+
+      <div class="budget-table">
+        <table>
+          <tr><th>Phase</th><th>Durée</th><th>Budget estimé</th></tr>
+          <tr><td>Corrections urgentes (Lot 1)</td><td>5 jours</td><td>2 500€ — 5 000€</td></tr>
+          <tr><td>Améliorations structurantes (Lot 2)</td><td>18 jours</td><td>9 000€ — 18 000€</td></tr>
+          <tr><td>Optimisations complémentaires (Lot 3)</td><td>8 jours</td><td>4 000€ — 8 000€</td></tr>
+        </table>
+      </div>
+
+      <div class="cta-block">
+        <h3>Prochaine étape</h3>
+        <p>Nous vous proposons un échange de 30 minutes pour parcourir ce rapport ensemble et répondre à vos questions. Si vous souhaitez avancer, nous pouvons démarrer le Lot 1 sous 2 semaines.</p>
+      </div>
+    </section>
+
+    <!-- Section 2: Project Profile -->
+    <section id="profile" class="section">
+      <h1>Profil du Projet</h1>
+      <p class="meta">Date de l'audit : 18 mars 2025 — Projet : pjr-rails</p>
+
+      <h2>Identité technique</h2>
+      <div class="card-grid">
+        <div class="card"><strong>Version de Rails</strong><br>6.0.6</div>
+        <div class="card"><strong>Version de Ruby</strong><br>≥ 3.1.2</div>
+        <div class="card"><strong>Base de données</strong><br>PostgreSQL</div>
+        <div class="card"><strong>Serveur web</strong><br>Puma 5.6</div>
+        <div class="card"><strong>Background jobs</strong><br>Sidekiq + sidekiq-scheduler</div>
+        <div class="card"><strong>Cache store</strong><br>Dalli (Memcached)</div>
+        <div class="card"><strong>File storage</strong><br>AWS S3 (Active Storage)</div>
+        <div class="card"><strong>Frontend</strong><br>ActiveAdmin, API JSON, GraphQL, CoffeeScript</div>
+      </div>
+
+      <h2>Dimensionnement</h2>
+      <table>
+        <tr><th>Métrique</th><th>Nombre</th></tr>
+        <tr><td>Models</td><td>31</td></tr>
+        <tr><td>Controllers</td><td>7</td></tr>
+        <tr><td>Views</td><td>10</td></tr>
+        <tr><td>Services</td><td>3</td></tr>
+        <tr><td>Jobs</td><td>5</td></tr>
+        <tr><td>Mailers</td><td>2</td></tr>
+        <tr><td>Tables en base</td><td>29</td></tr>
+        <tr><td>Routes</td><td>~30 (ActiveAdmin + API + GraphQL)</td></tr>
+        <tr><td>Gems (Gemfile)</td><td>~50</td></tr>
+        <tr><td>Fichiers de test</td><td>9</td></tr>
+      </table>
+
+      <h2>Gems notables</h2>
+      <h3>Framework & Core</h3>
+      <p>rails (6.0.6), puma (5.6), pg (1.5), bootsnap</p>
+      <h3>Authentification & Autorisation</h3>
+      <p>devise, devise-i18n, activeadmin</p>
+      <h3>API & Serialization</h3>
+      <p>graphql, graphiql-rails, jbuilder, rack-cors</p>
+      <h3>Background Processing</h3>
+      <p>sidekiq, sidekiq-scheduler</p>
+      <h3>Monitoring & Logging</h3>
+      <p>rails_semantic_logger, audited, barnes</p>
+      <h3>Testing</h3>
+      <p>rspec, factory_bot_rails, capybara, brakeman, bundle-audit</p>
+
+      <h2>Patterns architecturaux détectés</h2>
+      <ul class="checklist">
+        <li class="checked">✓ Service Objects (app/services/) — 3 services</li>
+        <li class="unchecked">✗ Query Objects</li>
+        <li class="unchecked">✗ Form Objects</li>
+        <li class="unchecked">✗ Presenters / Decorators</li>
+        <li class="unchecked">✗ Policy Objects</li>
+        <li class="unchecked">✗ Value Objects</li>
+        <li class="unchecked">✗ Rails Engines</li>
+        <li class="checked">✓ API mode (api_only = true)</li>
+        <li class="unchecked">✗ Hotwire / Turbo / Stimulus</li>
+        <li class="checked">✓ Namespacing par domaine (api/v1, admin)</li>
+      </ul>
+
+      <h2>Observations préliminaires</h2>
+      <ul>
+        <li><strong>Architecture hybride</strong> : Application configurée en api_only mais inclut ActiveAdmin (views ERB, assets CoffeeScript/SCSS).</li>
+        <li><strong>Authentification double</strong> : Devise pour les admin_users, authentification par token custom (AccessToken) pour l'API mobile.</li>
+        <li><strong>GraphQL</strong> : Endpoint /graphql exposé, GraphiQL activable via ENABLE_GRAPHIQL.</li>
+        <li><strong>Dépendances</strong> : Rails 6.0 en EOL (juin 2023), coffee-rails obsolète, mandrill_mailer, spring.</li>
+        <li><strong>Cache</strong> : Dalli présent mais config.cache_store commenté en production.</li>
+      </ul>
+    </section>
+
+    <!-- Section 3: Security -->
+    <section id="security" class="section">
+      <h1>🔒 Sécurité</h1>
+      <p class="meta">Score du domaine : 8 / 30</p>
+      <div class="section-score-bar"><div class="section-score-fill" style="width: 26.7%; background: var(--accent-red);"></div></div>
+
+      <table>
+        <tr><th>Sévérité</th><th>Nombre</th></tr>
+        <tr><td>🔴 Critique</td><td>4</td></tr>
+        <tr><td>🟠 Majeur</td><td>12</td></tr>
+        <tr><td>🟡 Mineur</td><td>8</td></tr>
+        <tr><td>🔵 Cosmétique</td><td>0</td></tr>
+      </table>
+
+      <h2>Findings</h2>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 SEC-001 — CVE GraphQL : exécution de code à distance</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : S (2-8h) | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Localisation :</strong> graphql gem (2.0.14)</p>
+          <p><strong>Constat :</strong> CVE-2025-27407 — La gem graphql permet l'exécution de code à distance lors du chargement d'un schéma GraphQL malveillant.</p>
+          <p><strong>Recommandation :</strong> Mettre à jour graphql vers ≥ 2.0.32 : <code>bundle update graphql</code></p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 SEC-002 — SSL désactivé en production</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : XS (&lt; 2h) | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Localisation :</strong> config/environments/production.rb</p>
+          <p><strong>Constat :</strong> config.force_ssl = true est commenté. Les requêtes HTTP ne sont pas redirigées vers HTTPS.</p>
+          <p><strong>Recommandation :</strong> Décommenter la ligne : <code>config.force_ssl = true</code></p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 SEC-003 — CVE ActiveAdmin : XSS stocké et injection CSV</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : M (1-3j) | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Localisation :</strong> activeadmin gem (2.12.0)</p>
+          <p><strong>Constat :</strong> CVE-2024-37031 (XSS stocké), CVE-2023-51763 (Injection CSV)</p>
+          <p><strong>Recommandation :</strong> Mettre à jour ActiveAdmin vers ≥ 3.2.2 ou ≥ 4.0.0.beta7</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 SEC-004 — CVE ActiveRecord : injection SQL</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : S (2-8h) | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Localisation :</strong> activerecord (6.0.6)</p>
+          <p><strong>Constat :</strong> CVE-2023-22794 — Vulnérabilité d'injection SQL via les commentaires ActiveRecord.</p>
+          <p><strong>Recommandation :</strong> Mettre à jour Rails vers ≥ 6.1.7.1 (ou 7.x)</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 SEC-005 — Log level debug en production</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : XS | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Constat :</strong> config.log_level = :debug expose des informations détaillées dans les logs.</p>
+          <p><strong>Recommandation :</strong> Utiliser config.log_level = :info ou :warn</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 SEC-006 — CORS mal configuré</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : XS | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> origins 'example.com' — valeur placeholder. Configurer les origines réelles via ENV.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 SEC-007 — Absence de Content Security Policy</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : S | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> Aucune CSP configurée. Créer config/initializers/content_security_policy.rb</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 SEC-008 — Secrets development/test en clair</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : XS | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> secret_key_base pour development et test en clair dans secrets.yml.</p>
+          <p><strong>Recommandation :</strong> Utiliser ENV["SECRET_KEY_BASE"] pour tous les environnements.</p>
+        </div></div>
+      </div>
+
+      <h2>Quick wins</h2>
+      <ul class="quick-wins-list">
+        <li>SEC-002 — Activer force_ssl (XS)</li>
+        <li>SEC-005 — Réduire log_level en production (XS)</li>
+        <li>SEC-006 — Configurer CORS correctement (XS)</li>
+        <li>SEC-008 — Externaliser les secrets dev/test (XS)</li>
+        <li>SEC-001 — Mise à jour graphql (S)</li>
+      </ul>
+
+      <h2>Chantiers structurants</h2>
+      <ul class="chantiers-list">
+        <li>SEC-003 — Mise à jour ActiveAdmin (M)</li>
+        <li>SEC-004 — Migration Rails 6.0 → 6.1+ (S-M)</li>
+        <li>SEC-007 — Mise en place CSP (S)</li>
+        <li>SEC-009+ — Mise à jour globale des dépendances (L)</li>
+      </ul>
+    </section>
+
+    <!-- Section 4: Code Quality -->
+    <section id="quality" class="section">
+      <h1>🧹 Qualité de code</h1>
+      <p class="meta">Score du domaine : 12 / 20</p>
+      <div class="section-score-bar"><div class="section-score-fill" style="width: 60%; background: var(--accent-orange);"></div></div>
+
+      <table>
+        <tr><th>Sévérité</th><th>Nombre</th></tr>
+        <tr><td>🔴 Critique</td><td>2</td></tr>
+        <tr><td>🟠 Majeur</td><td>5</td></tr>
+        <tr><td>🟡 Mineur</td><td>8</td></tr>
+        <tr><td>🔵 Cosmétique</td><td>3</td></tr>
+      </table>
+
+      <h2>Findings</h2>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 CQ-001 — Mutation UpdateClient : méthode monolithique (52 paramètres)</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : M (1-3j) | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Localisation :</strong> app/graphql/mutations/update_client.rb</p>
+          <p><strong>Constat :</strong> La mutation accepte 52 arguments et contient ~57 statements. Score Flog 100.3.</p>
+          <p><strong>Recommandation :</strong> Introduire un Form Object ou Input Object GraphQL (ClientAttributesInput).</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 CQ-002 — Law of Demeter violée (mapotempo.rb)</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : S (2-8h) | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Localisation :</strong> app/admin/mapotempo.rb</p>
+          <p><strong>Constat :</strong> 18 violations de la loi de Déméter. Chaînes d'appels object.a.b.c.</p>
+          <p><strong>Recommandation :</strong> Introduire des méthodes déléguées ou un Presenter/Decorator.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 CQ-003 — Méthodes inutilisées (dead code)</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : S | Vendabilité : <span class="stars">⭐</span></p>
+          <p><strong>Constat :</strong> 20+ méthodes "unused" identifiées (Client, Invoice, Order, etc.).</p>
+          <p><strong>Recommandation :</strong> Audit manuel avec grep, supprimer ou documenter.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 CQ-004 — Mutations Order : TooManyStatements, DuplicateMethodCall</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : S | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> Mutations::Order#resolve : 16 statements, Flog 48.8. order.product_items appelé 3 fois.</p>
+          <p><strong>Recommandation :</strong> Extraire des méthodes privées, mémoïser les appels répétés.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 CQ-005 — Jobs : DuplicateMethodCall (Rails.logger, Time.zone.today)</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : XS | Vendabilité : <span class="stars">⭐</span></p>
+          <p><strong>Constat :</strong> Rails.logger appelé 3-4 fois par job, Time.zone.today 2 fois.</p>
+          <p><strong>Recommandation :</strong> today = Time.zone.today et logger = Rails.logger en début de perform.</p>
+        </div></div>
+      </div>
+
+      <h2>Quick wins</h2>
+      <ul class="quick-wins-list">
+        <li>CQ-005 — Mémoïser Rails.logger et Time.zone dans les jobs (XS)</li>
+        <li>CQ-007 — Use scope access dans UsersController (XS)</li>
+        <li>CQ-011 — Supprimer trailing whitespace (XS)</li>
+      </ul>
+
+      <h2>Chantiers structurants</h2>
+      <ul class="chantiers-list">
+        <li>CQ-001 — Refactorer UpdateClient en Form Object (M)</li>
+        <li>CQ-002 — Corriger Law of Demeter dans mapotempo (S)</li>
+        <li>CQ-003 — Supprimer les méthodes inutilisées (S)</li>
+        <li>CQ-004 — Refactorer mutations Order et QueryType (S)</li>
+        <li>CQ-006 — Extraire logique Import/Invoice (S)</li>
+      </ul>
+    </section>
+
+    <!-- Section 5: Performance -->
+    <section id="performance" class="section">
+      <h1>⚡ Performance</h1>
+      <p class="meta">Score du domaine : 10 / 20</p>
+      <div class="section-score-bar"><div class="section-score-fill" style="width: 50%; background: var(--accent-yellow);"></div></div>
+
+      <table>
+        <tr><th>Sévérité</th><th>Nombre</th></tr>
+        <tr><td>🔴 Critique</td><td>1</td></tr>
+        <tr><td>🟠 Majeur</td><td>4</td></tr>
+        <tr><td>🟡 Mineur</td><td>3</td></tr>
+        <tr><td>🔵 Cosmétique</td><td>0</td></tr>
+      </table>
+
+      <h2>Findings</h2>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 PERF-001 — Absence de la gem Bullet pour détecter les N+1</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : XS | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Constat :</strong> Aucun outil pour détecter les requêtes N+1 en développement.</p>
+          <p><strong>Recommandation :</strong> Ajouter gem 'bullet', group: :development et configurer en development.rb.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 PERF-002 — N+1 potentiels dans les types GraphQL</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : S | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Localisation :</strong> OrderType, ClientType, QueryType</p>
+          <p><strong>Constat :</strong> OrderType expose client, products, subscription sans includes. Chaque order charge séparément ses associations.</p>
+          <p><strong>Recommandation :</strong> Utiliser GraphQL::Batch ou précharger avec includes dans les résolveurs.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 PERF-003 — Cache store non configuré en production</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : S | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> config.cache_store = :mem_cache_store est commenté. Rails utilise :memory_store par défaut.</p>
+          <p><strong>Recommandation :</strong> Configurer :mem_cache_store ou :redis_cache_store en production.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 PERF-004 — Pas de fragment caching dans les vues</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : M | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> Aucun cache do ... end dans les vues. Les vues Admin et API sont régénérées à chaque requête.</p>
+          <p><strong>Recommandation :</strong> Ajouter cache [model, model.updated_at] pour les fragments stables.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 PERF-005 — QueryType#all_clients : Client.all sans optimisation</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : XS | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> Client.ordered et Client.all retournés sans includes.</p>
+          <p><strong>Recommandation :</strong> Précharger les associations selon les champs demandés ou utiliser un DataLoader.</p>
+        </div></div>
+      </div>
+
+      <h2>Quick wins</h2>
+      <ul class="quick-wins-list">
+        <li>PERF-001 — Ajouter Bullet (XS)</li>
+        <li>PERF-003 — Configurer cache_store en production (S)</li>
+        <li>PERF-005 — Précharger associations QueryType (XS)</li>
+      </ul>
+
+      <h2>Chantiers structurants</h2>
+      <ul class="chantiers-list">
+        <li>PERF-002 — Résoudre les N+1 GraphQL avec Batch/DataLoader (S)</li>
+        <li>PERF-004 — Introduire le fragment caching (M)</li>
+        <li>PERF-006 — Analyser et ajouter index si nécessaire (S)</li>
+      </ul>
+    </section>
+
+    <!-- Section 6: Architecture -->
+    <section id="architecture" class="section">
+      <h1>🏗️ Architecture</h1>
+      <p class="meta">Score du domaine : 9 / 20</p>
+      <div class="section-score-bar"><div class="section-score-fill" style="width: 45%; background: var(--accent-blue);"></div></div>
+
+      <table>
+        <tr><th>Sévérité</th><th>Nombre</th></tr>
+        <tr><td>🔴 Critique</td><td>2</td></tr>
+        <tr><td>🟠 Majeur</td><td>4</td></tr>
+        <tr><td>🟡 Mineur</td><td>4</td></tr>
+        <tr><td>🔵 Cosmétique</td><td>0</td></tr>
+      </table>
+
+      <h2>Findings</h2>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 ARCH-001 — Ratio services/models insuffisant (0.11 vs 0.3)</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : M | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> 3 services pour 27 models. La logique métier complexe reste dans les models.</p>
+          <p><strong>Recommandation :</strong> Extraire ImportService, InvoiceCreationService, OrderValidationService.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-critical">
+        <div class="finding-header"><span class="finding-title">🔴 ARCH-002 — Couverture de tests insuffisante</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-critical">Critique</span> Effort : L (3-10j) | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Constat :</strong> 9 specs pour ~99 fichiers dans app/. Aucun spec pour mutations GraphQL, services, jobs.</p>
+          <p><strong>Recommandation :</strong> Prioriser tests sur mutations critiques, services, jobs. Viser ratio spec/code ≥ 0.3.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 ARCH-003 — Patterns manquants : Form Objects, Query Objects, Policies</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : L | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> Form Objects, Query Objects, Presenters, Policy Objects absents.</p>
+          <p><strong>Recommandation :</strong> Introduire Form Objects, Query Objects, envisager Pundit pour l'autorisation.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 ARCH-004 — Rails 6.0 en fin de vie (EOL)</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : M | Vendabilité : <span class="stars">⭐⭐⭐</span></p>
+          <p><strong>Constat :</strong> Rails 6.0 EOL juin 2023. Aucun correctif de sécurité fourni.</p>
+          <p><strong>Recommandation :</strong> Planifier migration vers Rails 6.1 ou 7.x.</p>
+        </div></div>
+      </div>
+
+      <div class="finding severity-major">
+        <div class="finding-header"><span class="finding-title">🟠 ARCH-005 — Dépendances obsolètes</span><span class="finding-toggle">▼</span></div>
+        <div class="finding-content"><div class="finding-content-inner">
+          <p><span class="badge badge-major">Majeur</span> Effort : S | Vendabilité : <span class="stars">⭐⭐</span></p>
+          <p><strong>Constat :</strong> coffee-rails, spring, mandrill_mailer, rspec-rails 3.5 obsolètes.</p>
+          <p><strong>Recommandation :</strong> Migrer CoffeeScript vers JS/TS, mettre à jour rspec-rails.</p>
+        </div></div>
+      </div>
+
+      <h2>Quick wins</h2>
+      <ul class="quick-wins-list">
+        <li>ARCH-004 — Planifier migration Rails 6.1+ (M)</li>
+        <li>ARCH-005 — Mettre à jour rspec-rails, évaluer coffee-rails (S)</li>
+        <li>ARCH-010 — Introduire un APM ou monitoring de base (S)</li>
+      </ul>
+
+      <h2>Chantiers structurants</h2>
+      <ul class="chantiers-list">
+        <li>ARCH-001 — Enrichir la couche Service (M)</li>
+        <li>ARCH-002 — Augmenter la couverture de tests (L)</li>
+        <li>ARCH-003 — Introduire Form Objects, Query Objects, Policies (L)</li>
+        <li>ARCH-006 — Réviser les callbacks à effet de bord (S)</li>
+      </ul>
+    </section>
+
+    <!-- Section 7: Action Plan -->
+    <section id="action-plan" class="section">
+      <h1>📋 Plan d'Action Priorisé</h1>
+      <p class="meta">Date : 18 mars 2025 — Projet : pjr-rails — Score santé global : 42 / 100</p>
+
+      <h2>Vue d'ensemble</h2>
+      <table>
+        <tr><th>Domaine</th><th>Score</th><th>Critiques</th><th>Majeurs</th><th>Mineurs</th></tr>
+        <tr><td>🔒 Sécurité</td><td>8/30</td><td>4</td><td>6</td><td>2</td></tr>
+        <tr><td>🧹 Qualité</td><td>12/20</td><td>2</td><td>5</td><td>5</td></tr>
+        <tr><td>⚡ Performance</td><td>10/20</td><td>1</td><td>4</td><td>3</td></tr>
+        <tr><td>🏗️ Architecture</td><td>9/20</td><td>2</td><td>4</td><td>4</td></tr>
+        <tr><td>📦 Dépendances</td><td>3/10</td><td>1</td><td>1</td><td>0</td></tr>
+      </table>
+
+      <h2>🟢 Lot 1 — Quick Wins</h2>
+      <div class="lot-block lot-1">
+        <div class="lot-title">Lot 1 — Quick Wins</div>
+        <div class="lot-meta">Estimation : 5 jours | Impact : Correction immédiate des risques critiques | Vendabilité : ⭐⭐⭐</div>
+        <p>Ces améliorations peuvent être livrées rapidement et leur valeur est immédiatement visible.</p>
+        <table>
+          <tr><th>#</th><th>Finding</th><th>Domaine</th><th>Sévérité</th><th>Effort</th></tr>
+          <tr><td>1</td><td>SEC-002 — Activer force_ssl</td><td>Sécurité</td><td>🔴</td><td>XS</td></tr>
+          <tr><td>2</td><td>SEC-005 — Réduire log_level</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
+          <tr><td>3</td><td>SEC-006 — Configurer CORS</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
+          <tr><td>4</td><td>SEC-008 — Externaliser secrets</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
+          <tr><td>5</td><td>SEC-001 — Mise à jour graphql</td><td>Sécurité</td><td>🔴</td><td>S</td></tr>
+          <tr><td>6</td><td>PERF-001 — Ajouter Bullet</td><td>Performance</td><td>🔴</td><td>XS</td></tr>
+          <tr><td>7</td><td>PERF-003 — Configurer cache_store</td><td>Performance</td><td>🟠</td><td>S</td></tr>
+          <tr><td>8</td><td>PERF-005 — Précharger associations</td><td>Performance</td><td>🟠</td><td>XS</td></tr>
+          <tr><td>9</td><td>CQ-005 — Mémoïser Rails.logger/Time.zone</td><td>Qualité</td><td>🟠</td><td>XS</td></tr>
+          <tr><td>10</td><td>CQ-007 — Use scope access</td><td>Qualité</td><td>🟠</td><td>XS</td></tr>
+        </table>
+      </div>
+
+      <h2>🟡 Lot 2 — Chantiers Structurants</h2>
+      <div class="lot-block lot-2">
+        <div class="lot-title">Lot 2 — Chantiers Structurants</div>
+        <div class="lot-meta">Estimation : 18 jours | Impact : Amélioration profonde | Vendabilité : ⭐⭐</div>
+        <p>Ces chantiers nécessitent un investissement plus important mais sécurisent l'application à moyen terme.</p>
+        <p>Inclut : SEC-003 (ActiveAdmin), SEC-004 (Migration Rails), SEC-007 (CSP), CQ-001 à CQ-006, PERF-002/004, ARCH-001 à ARCH-005.</p>
+      </div>
+
+      <h2>🔵 Lot 3 — Nice to Have</h2>
+      <div class="lot-block lot-3">
+        <div class="lot-title">Lot 3 — Nice to Have</div>
+        <div class="lot-meta">Estimation : 8 jours | Impact : Qualité de vie développeurs | Vendabilité : ⭐</div>
+        <p>CQ-009 (noms variables), CQ-010 (documentation), CQ-012 (DataClump), PERF-006, ARCH-006/008/010.</p>
+      </div>
+
+      <h2>Timeline recommandée</h2>
+      <div class="timeline">
+        <div class="timeline-block">Mois 1<br><strong>LOT 1</strong><br>Quick Wins</div>
+        <span class="timeline-arrow">→</span>
+        <div class="timeline-block">Mois 2-3<br><strong>LOT 2</strong><br>Structurant</div>
+        <span class="timeline-arrow">→</span>
+        <div class="timeline-block">Mois 4+<br><strong>LOT 3</strong><br>Nice to Have</div>
+      </div>
+
+      <h2>Estimation budgétaire</h2>
+      <div class="budget-table">
+        <table>
+          <tr><th>Lot</th><th>Jours estimés</th><th>Fourchette budgétaire</th></tr>
+          <tr><td>Quick Wins</td><td>5 j</td><td>2 500€ — 5 000€</td></tr>
+          <tr><td>Chantiers Structurants</td><td>18 j</td><td>9 000€ — 18 000€</td></tr>
+          <tr><td>Nice to Have</td><td>8 j</td><td>4 000€ — 8 000€</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>31 j</strong></td><td><strong>15 500€ — 31 000€</strong></td></tr>
+        </table>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">* Fourchette indicative basée sur un TJM de 500€ à 1 000€.</p>
+
+      <p style="margin-top: 1.5rem;">Approche recommandée : livraison itérative par sprints de 2 semaines, avec une revue de progression à chaque fin de sprint.</p>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-brand">Rails Doctor</div>
+      <div class="footer-meta">Audit de Santé Applicatif — pjr-rails</div>
+      <div class="footer-meta">Rapport réalisé le 18 mars 2025</div>
+    </footer>
+  </main>
+  </div>
+
+  <script>
+    // Navigation SPA
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.section');
+
+    navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = item.getAttribute('href').slice(1);
+        navItems.forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        sections.forEach(s => {
+          s.classList.remove('active');
+          if (s.id === targetId) s.classList.add('active');
+        });
+        try { history.replaceState(null, '', '#' + targetId); } catch (e) {}
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelector('.main-wrapper').scrollTo({ top: 0, behavior: 'smooth' });
+        // Close mobile menu
+        document.getElementById('sidebar').classList.remove('open');
+        const ol = document.getElementById('sidebarOverlay');
+        if (ol) ol.classList.remove('visible');
+      });
+    });
+
+    // Accordion for findings
+    document.querySelectorAll('.finding-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const finding = header.closest('.finding');
+        const content = finding.querySelector('.finding-content');
+        const isOpen = finding.classList.contains('open');
+        document.querySelectorAll('.finding').forEach(f => {
+          f.classList.remove('open');
+          f.querySelector('.finding-content').style.maxHeight = null;
+        });
+        if (!isOpen) {
+          finding.classList.add('open');
+          content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      });
+    });
+
+    // Animate gauge on load
+    function animateGauge() {
+      const gauge = document.querySelector('.score-gauge[data-score]');
+      if (!gauge) return;
+      const score = parseInt(gauge.dataset.score, 10);
+      const max = parseInt(gauge.dataset.max || 100, 10);
+      const fill = gauge.querySelector('[data-fill]');
+      if (!fill) return;
+      const circumference = 2 * Math.PI * 45;
+      const offset = Math.max(0, circumference - (score / max) * circumference);
+      fill.style.strokeDashoffset = offset;
+      fill.classList.remove('low', 'medium');
+      if (score < 40) fill.classList.add('low');
+      else if (score < 70) fill.classList.add('medium');
+    }
+
+    // Animate progress bars
+    function animateProgressBars() {
+      document.querySelectorAll('.progress-fill[data-width]').forEach(bar => {
+        const width = bar.dataset.width;
+        bar.style.width = width + '%';
+      });
+    }
+
+    // Run animations when summary section is visible
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(animateGauge, 100);
+          setTimeout(animateProgressBars, 300);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    const summarySection = document.getElementById('summary');
+    if (summarySection) observer.observe(summarySection);
+
+    // Initial run
+    animateGauge();
+    animateProgressBars();
+
+    // Hash navigation on load
+    const hash = window.location.hash.slice(1);
+    if (hash && document.getElementById(hash)) {
+      navItems.forEach(n => {
+        n.classList.toggle('active', n.getAttribute('href') === '#' + hash);
+      });
+      sections.forEach(s => {
+        s.classList.toggle('active', s.id === hash);
+      });
+    }
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('visible', sidebar.classList.contains('open'));
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>
