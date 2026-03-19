@@ -656,6 +656,95 @@
       color: var(--accent-yellow);
     }
 
+    /* Download cards */
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .download-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .download-card:hover {
+      border-color: var(--accent-green);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+    }
+
+    .download-card-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 10px;
+    }
+
+    .download-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .download-card-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .download-card-desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .download-card-meta {
+      font-size: 0.72rem;
+      color: var(--accent-green);
+      margin-top: 0.4rem;
+      font-weight: 500;
+    }
+
+    .download-all-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent-green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      margin-top: 1.5rem;
+    }
+
+    .download-all-btn:hover {
+      background: #0ea371;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
     /* Action plan tooltips */
     .action-row {
       cursor: pointer;
@@ -745,6 +834,7 @@
       <a href="#performance" class="nav-item"><span class="nav-icon">⚡</span> Performance</a>
       <a href="#architecture" class="nav-item"><span class="nav-icon">🏗️</span> Architecture</a>
       <a href="#action-plan" class="nav-item"><span class="nav-icon">📋</span> Plan d'Action</a>
+      <a href="#downloads" class="nav-item"><span class="nav-icon">📥</span> Téléchargements</a>
     </nav>
   </aside>
 
@@ -1342,6 +1432,76 @@
       <p style="margin-top: 1.5rem;">Approche recommandée : livraison itérative par sprints de 2 semaines, avec une revue de progression à chaque fin de sprint.</p>
     </section>
 
+    <!-- Section 8: Downloads -->
+    <section id="downloads" class="section">
+      <h1>📥 Téléchargements</h1>
+      <p class="meta">Téléchargez les fichiers du rapport au format Markdown pour les consulter hors-ligne ou les intégrer dans vos outils.</p>
+
+      <h2>Rapport complet</h2>
+      <div class="download-grid">
+        <a href="06_executive_summary.md" download class="download-card">
+          <div class="download-card-icon">📊</div>
+          <div class="download-card-info">
+            <div class="download-card-title">Résumé Exécutif</div>
+            <p class="download-card-desc">Vue d'ensemble du score de santé, risques principaux et recommandations budgétaires.</p>
+            <div class="download-card-meta">06_executive_summary.md</div>
+          </div>
+        </a>
+        <a href="00_project_profile.md" download class="download-card">
+          <div class="download-card-icon">📁</div>
+          <div class="download-card-info">
+            <div class="download-card-title">Profil du Projet</div>
+            <p class="download-card-desc">Identité technique, dimensionnement, gems notables et patterns architecturaux.</p>
+            <div class="download-card-meta">00_project_profile.md</div>
+          </div>
+        </a>
+        <a href="01_security_findings.md" download class="download-card">
+          <div class="download-card-icon">🔒</div>
+          <div class="download-card-info">
+            <div class="download-card-title">Sécurité</div>
+            <p class="download-card-desc">4 findings critiques, 12 majeurs — CVEs, SSL, CORS, secrets, CSP.</p>
+            <div class="download-card-meta">01_security_findings.md</div>
+          </div>
+        </a>
+        <a href="02_code_quality.md" download class="download-card">
+          <div class="download-card-icon">🧹</div>
+          <div class="download-card-info">
+            <div class="download-card-title">Qualité de Code</div>
+            <p class="download-card-desc">Analyse RuboCop, Reek, Flog — mutations monolithiques, dead code, conventions.</p>
+            <div class="download-card-meta">02_code_quality.md</div>
+          </div>
+        </a>
+        <a href="03_performance.md" download class="download-card">
+          <div class="download-card-icon">⚡</div>
+          <div class="download-card-info">
+            <div class="download-card-title">Performance</div>
+            <p class="download-card-desc">N+1 GraphQL, cache non configuré, requêtes non optimisées, Bullet absent.</p>
+            <div class="download-card-meta">03_performance.md</div>
+          </div>
+        </a>
+        <a href="04_architecture.md" download class="download-card">
+          <div class="download-card-icon">🏗️</div>
+          <div class="download-card-info">
+            <div class="download-card-title">Architecture</div>
+            <p class="download-card-desc">Ratio services/models, couverture tests, patterns manquants, Rails EOL.</p>
+            <div class="download-card-meta">04_architecture.md</div>
+          </div>
+        </a>
+        <a href="05_action_plan.md" download class="download-card">
+          <div class="download-card-icon">📋</div>
+          <div class="download-card-info">
+            <div class="download-card-title">Plan d'Action</div>
+            <p class="download-card-desc">Lot 1 (Quick Wins), Lot 2 (Structurant), Lot 3 (Nice to Have) — planning et budget.</p>
+            <div class="download-card-meta">05_action_plan.md</div>
+          </div>
+        </a>
+      </div>
+
+      <h2>Télécharger tout</h2>
+      <p>Téléchargez l'ensemble des fichiers du rapport en un clic.</p>
+      <button class="download-all-btn" id="downloadAllBtn">📦 Télécharger tous les fichiers</button>
+    </section>
+
     <footer class="footer">
       <div class="footer-brand">Rails Doctor</div>
       <div class="footer-meta">Audit de Santé Applicatif — pjr-rails</div>
@@ -1481,6 +1641,28 @@
       row.addEventListener('mouseleave', () => {
         tooltip.classList.remove('visible');
       });
+    });
+
+    // Download all button
+    document.getElementById('downloadAllBtn').addEventListener('click', async () => {
+      const files = [
+        '06_executive_summary.md',
+        '00_project_profile.md',
+        '01_security_findings.md',
+        '02_code_quality.md',
+        '03_performance.md',
+        '04_architecture.md',
+        '05_action_plan.md'
+      ];
+      for (const file of files) {
+        const a = document.createElement('a');
+        a.href = file;
+        a.download = file;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        await new Promise(r => setTimeout(r, 300));
+      }
     });
 
     function positionTooltip(e) {
