@@ -655,6 +655,74 @@
     .stars {
       color: var(--accent-yellow);
     }
+
+    /* Action plan tooltips */
+    .action-row {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .action-row:hover {
+      background: rgba(16, 185, 129, 0.08) !important;
+    }
+
+    .action-tooltip {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      width: 380px;
+      background: #1a2235;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 10px;
+      padding: 0;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.1);
+      pointer-events: none;
+      animation: tooltipIn 0.2s ease-out;
+      overflow: hidden;
+    }
+
+    .action-tooltip.visible {
+      display: block;
+    }
+
+    @keyframes tooltipIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tooltip-section {
+      padding: 0.85rem 1.1rem;
+    }
+
+    .tooltip-section:first-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tooltip-section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .tooltip-section-title.tech {
+      color: var(--accent-blue);
+    }
+
+    .tooltip-section-title.benefit {
+      color: var(--accent-green);
+    }
+
+    .tooltip-section p {
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -1193,19 +1261,19 @@
       <div class="lot-block lot-1">
         <div class="lot-title">Lot 1 — Quick Wins</div>
         <div class="lot-meta">Estimation : 5 jours | Impact : Correction immédiate des risques critiques | Vendabilité : ⭐⭐⭐</div>
-        <p>Ces améliorations peuvent être livrées rapidement et leur valeur est immédiatement visible.</p>
+        <p>Ces améliorations peuvent être livrées rapidement et leur valeur est immédiatement visible. <em>Survolez chaque ligne pour en savoir plus.</em></p>
         <table>
           <tr><th>#</th><th>Finding</th><th>Domaine</th><th>Sévérité</th><th>Effort</th></tr>
-          <tr><td>1</td><td>SEC-002 — Activer force_ssl</td><td>Sécurité</td><td>🔴</td><td>XS</td></tr>
-          <tr><td>2</td><td>SEC-005 — Réduire log_level</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
-          <tr><td>3</td><td>SEC-006 — Configurer CORS</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
-          <tr><td>4</td><td>SEC-008 — Externaliser secrets</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
-          <tr><td>5</td><td>SEC-001 — Mise à jour graphql</td><td>Sécurité</td><td>🔴</td><td>S</td></tr>
-          <tr><td>6</td><td>PERF-001 — Ajouter Bullet</td><td>Performance</td><td>🔴</td><td>XS</td></tr>
-          <tr><td>7</td><td>PERF-003 — Configurer cache_store</td><td>Performance</td><td>🟠</td><td>S</td></tr>
-          <tr><td>8</td><td>PERF-005 — Précharger associations</td><td>Performance</td><td>🟠</td><td>XS</td></tr>
-          <tr><td>9</td><td>CQ-005 — Mémoïser Rails.logger/Time.zone</td><td>Qualité</td><td>🟠</td><td>XS</td></tr>
-          <tr><td>10</td><td>CQ-007 — Use scope access</td><td>Qualité</td><td>🟠</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Décommenter config.force_ssl = true dans production.rb. Cela force la redirection HTTP → HTTPS via un middleware Rack, ajoute le header HSTS et marque tous les cookies comme secure." data-benefit="Protège les données de vos utilisateurs (mots de passe, informations personnelles) contre l'interception. Obligatoire pour la conformité RGPD et indispensable pour la confiance de vos clients."><td>1</td><td>SEC-002 — Activer force_ssl</td><td>Sécurité</td><td>🔴</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Changer config.log_level = :debug en :info ou :warn dans production.rb. Le mode debug journalise les paramètres de requêtes, les requêtes SQL complètes et potentiellement des données sensibles (emails, tokens)." data-benefit="Réduit le risque de fuite de données sensibles dans les logs. Diminue le volume de stockage et améliore légèrement les performances serveur."><td>2</td><td>SEC-005 — Réduire log_level</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Remplacer origins 'example.com' (valeur placeholder) par les domaines réels autorisés via variable d'environnement dans config/initializers/cors.rb. Le CORS contrôle quels sites tiers peuvent appeler votre API." data-benefit="Empêche des sites malveillants d'effectuer des requêtes API au nom de vos utilisateurs. Sécurise l'accès depuis l'app mobile et le backoffice uniquement."><td>3</td><td>SEC-006 — Configurer CORS</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Remplacer les secret_key_base en clair dans secrets.yml par ENV['SECRET_KEY_BASE']. Utiliser Rails credentials ou dotenv pour gérer les secrets en dehors du code source." data-benefit="Si le code source est exposé (fuite, repo public accidentel), les clés de chiffrement ne seront pas compromises. Bonne pratique de sécurité indispensable."><td>4</td><td>SEC-008 — Externaliser secrets</td><td>Sécurité</td><td>🟠</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Exécuter bundle update graphql pour passer de la version 2.0.14 à ≥ 2.0.32. Corrige la CVE-2025-27407 qui permet l'exécution de code arbitraire sur le serveur via un schéma GraphQL malveillant." data-benefit="Élimine le risque qu'un attaquant prenne le contrôle total de votre serveur et accède à toutes les données clients. Correction simple (1 commande) pour le risque le plus grave identifié."><td>5</td><td>SEC-001 — Mise à jour graphql</td><td>Sécurité</td><td>🔴</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Ajouter gem 'bullet' dans le group :development du Gemfile et configurer dans development.rb. Bullet détecte automatiquement les requêtes N+1 (une requête SQL par élément d'une liste au lieu d'une seule requête groupée)." data-benefit="Permet aux développeurs de détecter et corriger les lenteurs avant qu'elles n'impactent vos utilisateurs. Les pages qui affichent des listes (commandes, clients) se chargeront beaucoup plus vite."><td>6</td><td>PERF-001 — Ajouter Bullet</td><td>Performance</td><td>🔴</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Décommenter config.cache_store = :mem_cache_store dans production.rb pour activer Memcached via la gem Dalli (déjà présente dans le Gemfile). Alternative possible : :redis_cache_store." data-benefit="Accélère considérablement les temps de réponse en mettant en mémoire les données fréquemment demandées. Les pages se chargent plus vite, meilleure expérience pour vos utilisateurs."><td>7</td><td>PERF-003 — Configurer cache_store</td><td>Performance</td><td>🟠</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Remplacer Client.all par Client.includes(:orders, :subscriptions) dans les résolveurs GraphQL (QueryType). Précharge les associations en une seule requête SQL au lieu d'une par client." data-benefit="Réduit le nombre de requêtes SQL de potentiellement des centaines à quelques-unes. Les listes de clients et commandes se chargent instantanément au lieu de ramer."><td>8</td><td>PERF-005 — Précharger associations</td><td>Performance</td><td>🟠</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Assigner logger = Rails.logger et today = Time.zone.today en variables locales au début de la méthode perform des jobs, au lieu de les appeler 3-4 fois dans le même job." data-benefit="Code plus lisible et maintenable pour les développeurs. Réduit le coût des évolutions futures et diminue le risque de bugs lors des modifications."><td>9</td><td>CQ-005 — Mémoïser Rails.logger/Time.zone</td><td>Qualité</td><td>🟠</td><td>XS</td></tr>
+          <tr class="action-row" data-tech="Remplacer les accès directs (Client.find(id)) dans UsersController par des scopes via l'association du current_user (current_user.clients.find(id)). Garantit que chaque requête est filtrée par l'utilisateur connecté." data-benefit="Empêche un utilisateur d'accéder aux données d'un autre en manipulant l'URL. Renforce l'isolation et la confidentialité des données de chaque compte."><td>10</td><td>CQ-007 — Use scope access</td><td>Qualité</td><td>🟠</td><td>XS</td></tr>
         </table>
       </div>
 
@@ -1213,15 +1281,41 @@
       <div class="lot-block lot-2">
         <div class="lot-title">Lot 2 — Chantiers Structurants</div>
         <div class="lot-meta">Estimation : 18 jours | Impact : Amélioration profonde | Vendabilité : ⭐⭐</div>
-        <p>Ces chantiers nécessitent un investissement plus important mais sécurisent l'application à moyen terme.</p>
-        <p>Inclut : SEC-003 (ActiveAdmin), SEC-004 (Migration Rails), SEC-007 (CSP), CQ-001 à CQ-006, PERF-002/004, ARCH-001 à ARCH-005.</p>
+        <p>Ces chantiers nécessitent un investissement plus important mais sécurisent l'application à moyen terme. <em>Survolez chaque ligne pour en savoir plus.</em></p>
+        <table>
+          <tr><th>#</th><th>Finding</th><th>Domaine</th><th>Sévérité</th><th>Effort</th></tr>
+          <tr class="action-row" data-tech="Mettre à jour ActiveAdmin de 2.12.0 vers ≥ 3.2.2. Corrige CVE-2024-37031 (XSS stocké : un attaquant peut injecter du JavaScript dans les champs de formulaire) et CVE-2023-51763 (injection CSV : données malveillantes dans les exports Excel)." data-benefit="Protège votre interface d'administration contre le vol de sessions admin et l'injection de formules malveillantes dans les fichiers Excel exportés. Sécurise l'accès backoffice de votre équipe."><td>1</td><td>SEC-003 — Mise à jour ActiveAdmin</td><td>Sécurité</td><td>🔴</td><td>M</td></tr>
+          <tr class="action-row" data-tech="Migrer Rails de 6.0.6 vers 6.1+ ou 7.x. Corrige CVE-2023-22794 (injection SQL via les commentaires ActiveRecord). Nécessite de vérifier la compatibilité des gems et d'adapter les éventuels breaking changes." data-benefit="Votre application bénéficiera à nouveau des correctifs de sécurité officiels. Rails 6.0 n'est plus supporté depuis juin 2023, chaque jour qui passe augmente le risque d'exploitation d'une faille non corrigée."><td>2</td><td>SEC-004 — Migration Rails 6.1+</td><td>Sécurité</td><td>🔴</td><td>M</td></tr>
+          <tr class="action-row" data-tech="Créer config/initializers/content_security_policy.rb pour définir les sources autorisées de scripts, styles et ressources. La CSP empêche le navigateur d'exécuter du code non autorisé." data-benefit="Bloque les attaques XSS même si un attaquant réussit à injecter du code dans une page. Protection supplémentaire pour les données affichées dans le backoffice admin."><td>3</td><td>SEC-007 — Content Security Policy</td><td>Sécurité</td><td>🟠</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Refactorer la mutation UpdateClient qui accepte 52 arguments et 57 statements (score Flog 100.3) en introduisant un Input Object GraphQL (ClientAttributesInput) et un Form Object dédié pour la validation." data-benefit="Réduit drastiquement le risque de bugs lors de l'ajout de nouveaux champs client. Les évolutions du formulaire client seront 3x plus rapides à développer et à tester."><td>4</td><td>CQ-001 — Refactorer UpdateClient</td><td>Qualité</td><td>🔴</td><td>M</td></tr>
+          <tr class="action-row" data-tech="Corriger 18 violations de la loi de Déméter dans mapotempo.rb en introduisant des méthodes déléguées (delegate) ou un Presenter/Decorator. Élimine les chaînes d'appels object.a.b.c fragiles." data-benefit="Rend le code d'intégration Mapotempo beaucoup plus robuste. Les futures modifications de structure de données ne casseront plus l'interface de livraison."><td>5</td><td>CQ-002 — Law of Demeter mapotempo</td><td>Qualité</td><td>🔴</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Auditer et supprimer les 20+ méthodes identifiées comme inutilisées dans les modèles Client, Invoice, Order, etc. Vérifier avec grep/search qu'elles ne sont effectivement plus appelées." data-benefit="Réduit la surface de code à maintenir et à comprendre. Les nouveaux développeurs seront productifs plus rapidement et le risque de confusion sur le code actif diminue."><td>6</td><td>CQ-003 — Supprimer le dead code</td><td>Qualité</td><td>🟠</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Refactorer les mutations Order (16 statements, Flog 48.8) en extrayant des méthodes privées. Mémoïser order.product_items qui est appelé 3 fois dans la même méthode." data-benefit="Les modifications sur le processus de commande seront plus sûres et plus rapides. Réduit le risque de régressions sur la fonctionnalité la plus critique de l'application."><td>7</td><td>CQ-004 — Refactorer mutations Order</td><td>Qualité</td><td>🟠</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Extraire la logique métier d'import et de facturation des modèles vers des services dédiés (ImportService, InvoiceCreationService). Séparer les responsabilités selon le principe SRP." data-benefit="Simplifie l'ajout de nouvelles sources d'import ou de nouveaux modes de facturation. Les bugs de facturation seront plus faciles à isoler et à corriger."><td>8</td><td>CQ-006 — Extraire logique Import/Invoice</td><td>Qualité</td><td>🟠</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Utiliser GraphQL::Batch ou graphql-dataloader pour regrouper les requêtes SQL. Au lieu d'exécuter 1 requête par commande pour charger le client associé, une seule requête charge tous les clients nécessaires." data-benefit="Les pages qui affichent des listes de commandes avec les détails clients passent de plusieurs secondes à quelques millisecondes. Expérience utilisateur fluide même avec beaucoup de données."><td>9</td><td>PERF-002 — Résoudre N+1 GraphQL</td><td>Performance</td><td>🟠</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Introduire cache do [model, model.updated_at] ... end dans les vues Admin et les réponses API. Les fragments HTML/JSON sont mis en cache et invalidés automatiquement quand les données changent." data-benefit="Les pages admin et les réponses API se chargent instantanément pour les données qui n'ont pas changé. Réduit la charge serveur et permet de supporter plus d'utilisateurs simultanés."><td>10</td><td>PERF-004 — Fragment caching</td><td>Performance</td><td>🟠</td><td>M</td></tr>
+          <tr class="action-row" data-tech="Extraire la logique métier des modèles vers des services dédiés (ImportService, InvoiceCreationService, OrderValidationService). Passer le ratio services/models de 0.11 à ≥ 0.3." data-benefit="Les évolutions métier (nouveau type de commande, nouvelle règle de facturation) seront isolées et ne risqueront pas de casser les fonctionnalités existantes. Développement plus rapide et plus sûr."><td>11</td><td>ARCH-001 — Enrichir couche Service</td><td>Architecture</td><td>🔴</td><td>M</td></tr>
+          <tr class="action-row" data-tech="Écrire des specs RSpec pour les mutations GraphQL critiques, les services et les jobs. Passer de 9 specs (~10% de couverture) à un ratio spec/code ≥ 0.3. Prioriser les chemins critiques : commandes, facturation, import." data-benefit="Chaque mise en production sera sécurisée par des tests automatiques. Fini le stress du déploiement : les régressions sont détectées avant d'atteindre vos utilisateurs."><td>12</td><td>ARCH-002 — Couverture de tests</td><td>Architecture</td><td>🔴</td><td>L</td></tr>
+          <tr class="action-row" data-tech="Introduire des Form Objects (validation de formulaires complexes), Query Objects (requêtes SQL réutilisables) et Pundit pour l'autorisation (policies). Structurer le code en couches claires." data-benefit="L'application devient plus facile à faire évoluer par n'importe quel développeur Rails. Réduit le temps d'onboarding et le coût de maintenance à long terme."><td>13</td><td>ARCH-003 — Form/Query Objects, Policies</td><td>Architecture</td><td>🟠</td><td>L</td></tr>
+          <tr class="action-row" data-tech="Planifier et exécuter la migration de Rails 6.0 (EOL juin 2023) vers Rails 6.1+ ou 7.x. Inclut la mise à jour des gems incompatibles, l'adaptation des APIs dépréciées et les tests de non-régression." data-benefit="Retrouver le support officiel de sécurité de Rails. Accès aux nouvelles fonctionnalités (encryption, async queries, Hotwire) qui accélèrent le développement futur."><td>14</td><td>ARCH-004 — Migration Rails</td><td>Architecture</td><td>🟠</td><td>M</td></tr>
+          <tr class="action-row" data-tech="Remplacer coffee-rails par du JavaScript/TypeScript moderne. Mettre à jour rspec-rails de 3.5 vers 6.x. Retirer spring (source fréquente de bugs en développement) et mandrill_mailer si non utilisé." data-benefit="Les développeurs travaillent avec des outils modernes et documentés. Le recrutement de nouveaux développeurs est facilité car CoffeeScript est une technologie abandonnée."><td>15</td><td>ARCH-005 — Dépendances obsolètes</td><td>Architecture</td><td>🟠</td><td>S</td></tr>
+        </table>
       </div>
 
       <h2>🔵 Lot 3 — Nice to Have</h2>
       <div class="lot-block lot-3">
         <div class="lot-title">Lot 3 — Nice to Have</div>
         <div class="lot-meta">Estimation : 8 jours | Impact : Qualité de vie développeurs | Vendabilité : ⭐</div>
-        <p>CQ-009 (noms variables), CQ-010 (documentation), CQ-012 (DataClump), PERF-006, ARCH-006/008/010.</p>
+        <p>Améliorations de confort et de maintenabilité à long terme. <em>Survolez chaque ligne pour en savoir plus.</em></p>
+        <table>
+          <tr><th>#</th><th>Finding</th><th>Domaine</th><th>Sévérité</th><th>Effort</th></tr>
+          <tr class="action-row" data-tech="Renommer les variables et méthodes qui ne respectent pas les conventions Ruby (snake_case, noms explicites). Améliore la lisibilité du code pour tous les développeurs de l'équipe." data-benefit="Les développeurs comprennent le code plus rapidement. Réduit le temps passé à deviner ce que fait une variable mal nommée, donc des évolutions moins chères."><td>1</td><td>CQ-009 — Noms de variables</td><td>Qualité</td><td>🟡</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Ajouter des commentaires YARD sur les méthodes publiques des services, mutations et modèles principaux. Documenter les endpoints API et GraphQL avec leurs paramètres et retours." data-benefit="Un nouveau développeur peut comprendre l'API et les services sans devoir lire tout le code. Réduit le temps d'intégration d'un prestataire ou d'un nouvel employé."><td>2</td><td>CQ-010 — Documentation code</td><td>Qualité</td><td>🟡</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Identifier et regrouper les paramètres qui voyagent toujours ensemble (DataClump) en Value Objects ou en structures dédiées. Exemple : les coordonnées (lat, lng, adresse) regroupées dans un objet Address." data-benefit="Élimine la duplication de paramètres dans les signatures de méthodes. Le code est plus cohérent et les modifications sur un groupe de données se font en un seul endroit."><td>3</td><td>CQ-012 — DataClump</td><td>Qualité</td><td>🟡</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Analyser les requêtes SQL lentes avec EXPLAIN ANALYZE et ajouter les index manquants sur les colonnes fréquemment utilisées dans les WHERE, JOIN et ORDER BY. Vérifier les index composites." data-benefit="Les recherches et les tris dans l'application sont plus rapides. Les pages qui ralentissent avec la croissance des données restent performantes dans le temps."><td>4</td><td>PERF-006 — Ajouter index manquants</td><td>Performance</td><td>🟡</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Réviser les callbacks ActiveRecord (after_save, after_create) qui déclenchent des effets de bord (envoi d'emails, appels API externes). Les déplacer dans des services ou des jobs asynchrones." data-benefit="Les sauvegardes de données deviennent plus fiables et plus rapides. Un email qui échoue ne bloquera plus l'enregistrement d'une commande."><td>5</td><td>ARCH-006 — Callbacks à effets de bord</td><td>Architecture</td><td>🟡</td><td>S</td></tr>
+          <tr class="action-row" data-tech="Mettre en place un outil d'APM (Application Performance Monitoring) comme Skylight, Scout ou New Relic pour surveiller les temps de réponse, les requêtes lentes et les erreurs en production." data-benefit="Vous voyez en temps réel si l'application ralentit ou plante. Les problèmes sont détectés et corrigés avant que vos clients ne s'en plaignent."><td>6</td><td>ARCH-010 — Monitoring APM</td><td>Architecture</td><td>🟡</td><td>S</td></tr>
+        </table>
       </div>
 
       <h2>Timeline recommandée</h2>
@@ -1364,6 +1458,42 @@
       sidebar.classList.remove('open');
       overlay.classList.remove('visible');
     });
+
+    // Action plan tooltips
+    const tooltip = document.createElement('div');
+    tooltip.className = 'action-tooltip';
+    document.body.appendChild(tooltip);
+
+    document.querySelectorAll('.action-row').forEach(row => {
+      row.addEventListener('mouseenter', (e) => {
+        const tech = row.dataset.tech;
+        const benefit = row.dataset.benefit;
+        if (!tech && !benefit) return;
+        tooltip.innerHTML =
+          '<div class="tooltip-section"><div class="tooltip-section-title tech">🔧 Détail technique</div><p>' + tech + '</p></div>' +
+          '<div class="tooltip-section"><div class="tooltip-section-title benefit">✅ Bénéfice pour vous</div><p>' + benefit + '</p></div>';
+        tooltip.classList.add('visible');
+        positionTooltip(e);
+      });
+
+      row.addEventListener('mousemove', positionTooltip);
+
+      row.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
+      });
+    });
+
+    function positionTooltip(e) {
+      const pad = 16;
+      const tw = 380;
+      let x = e.clientX + pad;
+      let y = e.clientY + pad;
+      if (x + tw > window.innerWidth - pad) x = e.clientX - tw - pad;
+      if (y + tooltip.offsetHeight > window.innerHeight - pad) y = e.clientY - tooltip.offsetHeight - pad;
+      if (y < pad) y = pad;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    }
   </script>
 </body>
 </html>
